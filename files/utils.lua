@@ -92,7 +92,6 @@ function heal()
         {var='hp',value=player_data.max_hp},
         {var="is_on_fire",value='0'},
     })
-    local player_data = get_player_data("DamageModelComponent",{"hp","max_hp"})
 end
 
 function god_mode()
@@ -114,10 +113,24 @@ function mortal_mode()
 end
 
 function infinite_boost()
-    local player_data = get_player_data("CharacterDataComponent",{"mFlyingTimeLeft"})
     set_player_data("CharacterDataComponent",{
-        {var="mFlyingTimeLeft",value='3'},
+        {var="mFlyingTimeLeft",value='999'},
+        {var="eff_hg_b2force_multiplier",value='1'}
     })
+end
+
+function superinv(bool)
+    if bool then
+        set_player_data("Inventory2Component",{
+            {var="full_inventory_slots_y",value="15"},
+            {var="full_inventory_slots_x",value="18"}
+        })
+    else
+        set_player_data("Inventory2Component",{
+            {var="full_inventory_slots_y",value="1"},
+            {var="full_inventory_slots_x",value="16"}
+        })
+    end
 end
 
 function button_press(name)

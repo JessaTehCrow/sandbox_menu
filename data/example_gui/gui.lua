@@ -21,7 +21,7 @@ dofile( "files/spells.lua" )
 local GUI_created = false
 local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations
 local flask_menu,flask_spawn
-local godmode,infinite_spells,boost,spell_arr = false,false,false,nil
+local godmode,infinite_spells,boost,spell_arr,super_boost = false,false,false,nil,false
 local location = 'normal'
 
 local wand_arr = {}
@@ -146,7 +146,7 @@ menu = function()
         {name="-Particles",func=function() _GUI_menu = particles end},
         {name="-Locations",func=function() _GUI_menu = locations end},
         {name="-Cheats",func=function() _GUI_menu = cheat_menu end},
-        {name="-Test",func=function() _GUI_menu = test end}
+        --{name="-Test",func=function() _GUI_menu = test end}
     })
 end
 
@@ -278,28 +278,33 @@ cheat_menu = function()
         {name="Godmode (".. bool_to_onoff(godmode) ..")",func=function() godmode = not godmode; if godmode then god_mode() else mortal_mode() end; end},
         {name="Infinite spells (".. bool_to_onoff(infinite_spells) ..")", func= function() infinite_spells = not infinite_spells end},
         {name="Infinite boost (".. bool_to_onoff(boost) ..")",func= function() boost = not boost end},
+        {name="Super inventory (".. bool_to_onoff(super_boost) ..")",func=function() super_boost = not super_boost; superinv(super_boost); end},
         {name ="GOLD EVERYTHING",func=function() ConvertEverythingToGold() end},
         {name="500 Gold",func=function() loads_of_gold(0.5) end},
         {name="1K Gold",func=function() loads_of_gold(1) end},
-        {name="testPlayer",func=function() local player = get_player_obj(); local is_player = test_player(player); GamePrint(tostring(is_player)) end}
+        --{name="testPlayer",func=function() local player = get_player_obj(); local is_player = test_player(player); GamePrint(tostring(is_player)) end}
     })
 end
+
+local function cheat()
+    if infinite_spells then
+        GameRegenItemActionsInPlayer( get_player_obj() )
+    end
+    if boost then
+        infinite_boost(boost)
+    end
+
+    if GUI ~= nil then
+        GuiStartFrame(GUI)
+    end
+end 
 
 -- GUI loop
 if GUI_created then
     print("Starting example gui loop")
     async_loop(function()
-        if infinite_spells then
-            GameRegenItemActionsInPlayer( get_player_obj() )
-        end
-        if boost then
-            infinite_boost()
-        end
 
-        if GUI ~= nil then
-            GuiStartFrame(GUI)
-        end
-
+        cheat()
         if _GUI_menu ~= nil then
             local bool,error = pcall(_GUI_menu)
             if not bool then
