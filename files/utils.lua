@@ -21,6 +21,13 @@ function get_player_data(component,toget)
     return output
 end
 
+function save_location()
+    local x,y = get_player_coords()
+    local name = "Custom location " .. #saved_custom_locations + 1
+
+    table.insert(saved_custom_locations,{name=name,x=x,y=y,func=teleport})
+end
+
 function set_player_data(component,values)
     local data_components = EntityGetComponent( get_player_obj(), component )
     if data_components ~= nil then
@@ -86,6 +93,10 @@ function bool_to_onoff(bool)
     end
 end
 
+function bool_to_01(bool)
+    if bool then return 1 else return 0 end
+end
+
 function heal()
     local player_data = get_player_data("DamageModelComponent",{"hp","max_hp"})
     set_player_data("DamageModelComponent",{
@@ -104,6 +115,22 @@ function god_mode()
     })
 end
 
+function empty_wand()
+    return {
+        actions_per_round =         1,
+        reload_time =               30,
+        shuffle_deck_when_empty =   0,
+        deck_capacity =             5,
+        max_charged_actions =       5,
+        mana_max =                  200,
+        mana_charge_speed =         50,
+        speed_multiplier =          1,
+        always_cast =               nil,
+        fire_rate_wait =            15,
+        spread_degrees =            0
+    }
+end
+
 function mortal_mode()
     set_player_data("DamageModelComponent",{
         {var='invincibility_frames',value='60'},
@@ -114,8 +141,7 @@ end
 
 function infinite_boost()
     set_player_data("CharacterDataComponent",{
-        {var="mFlyingTimeLeft",value='999'},
-        {var="eff_hg_b2force_multiplier",value='1'}
+        {var="mFlyingTimeLeft",value='3'},
     })
 end
 
@@ -142,6 +168,11 @@ function spawn_spell(obj)
     local x,y = get_player_coords()
     CreateItemActionEntity(obj.id:lower(),x,y)
 end
+
+function random_spell()
+    local spell_int = Random(1,#gun_actions.all)
+    spawn_spell(gun_actions.all[spell_int])
+end 
 
 function particle_spawn(obj)
     spawn_entity(obj,0,0,false)

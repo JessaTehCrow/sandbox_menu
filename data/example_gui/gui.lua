@@ -4,6 +4,16 @@ if not async then
     dofile( "data/scripts/lib/coroutines.lua" )
 end
 
+--[[
+SUGGESTIONS
+
+Infinite flasks
+Keyboard filter
+Improved infinite spells - which might be game bug
+
+
+]]
+
 dofile( "data/scripts/lib/utilities.lua" )
 dofile( "data/scripts/perks/perk_list.lua")
 dofile( "data/scripts/perks/perk.lua")
@@ -16,18 +26,29 @@ dofile( "files/props.lua" )
 dofile( "files/projectiles.lua" )
 dofile( "files/locations.lua" )
 dofile( "files/spells.lua" )
+dofile( "files/wand.lua" )
 
 -- Start / setup
 local GUI_created = false
-local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations
+local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations,wands_saved
 local flask_menu,flask_spawn
 local godmode,infinite_spells,boost,spell_arr,super_boost = false,false,false,nil,false
 local location = 'normal'
-
+local custom_wand = empty_wand()
 local wand_arr = {}
+local wand_arr_2 = {}
+
+local incr_val = 1
+local always_cast = nil
+
 for x=1,6
 do
     wand_arr[x] = {path="data/entities/items/wand_level_0".. tostring(x) .. ".xml",name="Level "..tostring(x)}
+end
+
+for x=1,#wand_arr
+do
+    print(wand_arr[x].name)
 end
 
 local orb_arr = {}
@@ -55,6 +76,11 @@ local spawn_id = 342
 local prev = nil
 
 -- local functions
+local function extra_function(data)
+    --GuiLayoutBeginVertical(GUI,1,0)
+
+end
+
 local function grid(title,array,func)
     local collumn_length = 20
     local pages = math.ceil(#array/collumn_length)
@@ -89,8 +115,12 @@ local function grid(title,array,func)
         if GuiButton(GUI,0,0,obj.name or obj.ui_name,spawn_id + x + offset + 1) then
             if func ~= nil then
                 func(obj)
-            else
+            elseif obj.func ~= nil then
                 obj.func(obj)
+            end
+
+            if obj.nvar ~= nil then
+                _GUI_menu = obj.nvar    
             end
         end
     end
@@ -116,6 +146,83 @@ local function grid(title,array,func)
         end
         GuiLayoutEnd(GUI)
     end 
+end
+
+function builder()
+    local values = {
+        {"Spells per cast","actions_per_round"},
+        {"Reload time","reload_time"},
+        {"Capacity","deck_capacity"},
+        {"Mana max","mana_max"},
+        {"Mana regen","mana_charge_speed"},
+        {"Speed","speed_multiplier"},
+        {"Shoot delay","fire_rate_wait"},
+        {"Spread","spread_degrees"},
+    }
+
+    GuiLayoutBeginVertical(GUI,1,15)
+    for i,x in ipairs(values)
+    do
+        GuiText(GUI,0,5,x[1])
+    end
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,12,15)
+    for i,x in ipairs(values)
+    do
+        if GuiButton(GUI,0,5,"\\/",spawn_id+1+i) then
+            custom_wand[x[2]] = custom_wand[x[2]] - incr_val
+        end
+    end
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,15,15)
+    for i,x in ipairs(values)
+    do
+        GuiText(GUI,0,5,tostring( custom_wand[x[2]] ) )
+    end
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,25,15)
+    for i,x in ipairs(values)
+    do
+        if GuiButton(GUI,0,5,"/\\",spawn_id -1 -i) then
+            custom_wand[x[2]] = custom_wand[x[2]] + incr_val
+        end
+    end
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,1,50)
+    local shuffle = false
+
+    if custom_wand.shuffle_deck_when_empty ~= 0 then shuffle = true end
+
+    if GuiButton(GUI,0,5,"Shuffle                    " .. bool_to_onoff(shuffle),999) then
+        --custom_wand.shuffle_deck_when_empty = bool_to_01(not shuffle)
+        custom_wand.shuffle_deck_when_empty = bool_to_01(not shuffle)
+    end
+    local cast = 'None'
+    if custom_wand.always_cast ~= nil then
+        cast = always_cast
+    end
+
+    if GuiButton(GUI,0,0,"Always Cast              ".. cast,1000) then
+        _GUI_menu = select_spell
+    end
+    
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,2,60)
+    if GuiButton(GUI,0,0,"[Reset]",-4) then
+        custom_wand = empty_wand()
+    end
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,15,60)
+    if GuiButton(GUI,0,0,"[Spawn]",-1) then
+        gen_wand(custom_wand)
+    end
+    GuiLayoutEnd(GUI)
 end
 
 local function spawn(obj)
@@ -146,7 +253,6 @@ menu = function()
         {name="-Particles",func=function() _GUI_menu = particles end},
         {name="-Locations",func=function() _GUI_menu = locations end},
         {name="-Cheats",func=function() _GUI_menu = cheat_menu end},
-        --{name="-Test",func=function() _GUI_menu = test end}
     })
 end
 
@@ -160,6 +266,7 @@ spells = function()
         {name="Utility",func=function() spell_arr = function() grid("Utility:",gun_actions.utility,spawn_spell)        end _GUI_menu = spell_arr; prev=spells end },
         {name="Passive",func=function() spell_arr = function() grid("Passive:",gun_actions.passive,spawn_spell)        end _GUI_menu = spell_arr; prev=spells end },
         {name="Other",func=function() spell_arr = function() grid("Other:",gun_actions.other,spawn_spell)              end _GUI_menu = spell_arr; prev=spells end },
+        {name="Random",func=random_spell},
     })
 end
 
@@ -210,12 +317,56 @@ flask_menu = function()
     GuiLayoutEnd(GUI)
 end
 
+wand_build = function()
+    local nums = {
+        0.1,
+        1,
+        10,
+        100,
+        1000
+    }
+
+    GuiLayoutBeginVertical(GUI,1,0)
+    if GuiButton(GUI,25,0,'[Back]',spawn_id-31) then
+        button_press('Back')
+        _GUI_menu = prev
+        prev = menu
+    end
+    GuiLayoutEnd(GUI)
+    GuiLayoutBeginVertical(GUI,1,0)
+    if GuiButton(GUI,55,0,'[Close]',spawn_id-30) then
+        button_press('Close')
+        _GUI_menu = button
+    end
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,35,15)
+    for i,x in ipairs(nums)
+    do
+        local name = tostring(x)
+        if x == incr_val then name = '('.. name .. ')' end
+        if GuiButton(GUI,0,5,name,spawn_id - 32 - i) then
+            incr_val = x
+        end
+    end 
+    GuiLayoutEnd(GUI)
+
+    builder()
+end
+
 orbs = function()
     grid("Orbs:",orb_arr,spawn_entity)
 end
 
 wands = function()
-    grid("Wands:",wand_arr,spawn_entity)
+    grid("Wands:",{
+        {name="Buildin",nvar=wands_saved,func=function() prev = wands end},
+        {name="Custom",nvar=wand_build,func=function() prev = wands end}
+    })
+end
+
+wands_saved = function()
+    grid("Wands",wand_arr,spawn_entity)
 end
 
 perks = function()
@@ -230,6 +381,26 @@ mobs = function()
     grid("Mobs:",animals,spawn)
 end 
 
+local function set_cast(obj)
+    always_cast = obj.id:lower()
+    custom_wand.always_cast = always_cast
+    _GUI_menu = wand_build
+    prev = menu
+end
+
+select_spell = function()
+    grid("Select:", {
+        {name="Projectiles",func=function() spell_arr = function() grid("Projectiles:",gun_actions.projectiles,set_cast)        end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Static",func=function() spell_arr =  function()grid("Static:",gun_actions.static,set_cast)           end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Modifiers",func=function() spell_arr = function() grid("Modifiers:",gun_actions.modifier,set_cast)  end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Formations",func=function() spell_arr = function() grid("Formations:",gun_actions.draw_many,set_cast)  end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Materials",func=function() spell_arr = function() grid("Materials:",gun_actions.material,set_cast)   end  _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Utility",func=function() spell_arr = function() grid("Utility:",gun_actions.utility,set_cast)        end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Passive",func=function() spell_arr = function() grid("Passive:",gun_actions.passive,set_cast)        end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Other",func=function() spell_arr = function() grid("Other:",gun_actions.other,set_cast)              end _GUI_menu = spell_arr; prev = select_spell end },
+    })
+end
+
 flask_spawn = function()
     grid(_mat..":",all_materials[_mat],spawn_flask)
 end
@@ -242,8 +413,8 @@ pickup = function()
     grid('Pickups:',pickupable,spawn)
 end
 
-locations = function()
-    grid("Locations:",get_locations(location),teleport)
+saved_locations_menu = function()
+    grid("Saved locations:",get_locations(location),teleport)
     local west = "(West"
     local normal = "Normal"
     local north = "East)"
@@ -257,21 +428,39 @@ locations = function()
     end
 
     GuiLayoutBeginVertical(GUI,1,0)
-    if GuiButton(GUI,50,41.5,west,spawn_id-9) then
+    if GuiButton(GUI,70,41.5,west,spawn_id-9) then
         location = 'west'
     end 
     GuiLayoutEnd(GUI)
     GuiLayoutBeginVertical(GUI,1,0)
-    if GuiButton(GUI,90,41.5,normal,spawn_id-8) then
+    if GuiButton(GUI,110,41.5,normal,spawn_id-8) then
         location = 'normal'
     end 
     GuiLayoutEnd(GUI)
     GuiLayoutBeginVertical(GUI,1,0)
-    if GuiButton(GUI,130,41.5,north,spawn_id-7) then
+    if GuiButton(GUI,150,41.5,north,spawn_id-7) then
         location = 'east'
     end 
     GuiLayoutEnd(GUI)
-end 
+end
+
+custom_locations = function()
+    local off = 0
+    if #saved_custom_locations > 20 then off = 80 else off = 17 + (#saved_custom_locations * 3) end
+    GuiLayoutBeginVertical(GUI,2,off)
+    if GuiButton(GUI,0,0,"(Save)",spawn_id-100) then
+        save_location()
+    end
+    GuiLayoutEnd(GUI)
+    grid("Custom:",saved_custom_locations,teleport)
+end
+
+locations = function()
+    grid("Locations:",{
+        {name="Saved",nvar=saved_locations_menu,func=function() prev = locations end},
+        {name="Custom",nvar=custom_locations,func=function() prev = locations end}
+    })
+end
 
 cheat_menu = function()
     grid("Cheats:",{

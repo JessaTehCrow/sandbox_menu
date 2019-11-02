@@ -28,7 +28,7 @@ local function in_list(type)
     end
     return false
 end
-
+gun_actions.all = {}
 for i,x in ipairs(names)
 do
     gun_actions[x] = {}
@@ -43,6 +43,7 @@ do
     else
         table.insert(gun_actions.other,x)
     end
+    table.insert(gun_actions.all,x)
 end
 
 --[[

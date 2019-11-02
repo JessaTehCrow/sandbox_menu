@@ -13,10 +13,13 @@ I want to make mod to just get mostly every item from the game. (Atleast every s
 - Spawn in Flasks
 - Teleport to saved locations (Not too many yet)
 - Godmode, Infinite boost, Infinite spells and more
+- Save locations on the go
+- Craft your own wands
 
 ## Spawnable from other mods
 - Spells inserted in `gun/gun_actions.lua`
-- Materials inserted in cell_factory
+- Materials inserted in cell_factory (Will mean more flasks)
+- Perks inserted in `perks/perk_list`
 
 ## Screenshots
 ![all](https://cdn.discordapp.com/attachments/460470916153999381/639173981378707471/unknown.png)
