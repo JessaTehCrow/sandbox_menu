@@ -99,37 +99,60 @@ function spawn_item(item)
         spawned = false
     end
 end 
+--[[
+<Entity>
+<InheritTransformComponent>
+</InheritTransformComponent>
 
+<CellEaterComponent
+    eat_probability="50"
+    radius="10" 
+    limited_materials="1"
+    materials="sand,soil,bone,fungisoil,mud,sandstone,snow,snow_sticky,sand_herb,wax,coal,sulphur,salt,gunpowder,gunpowder_unstable,gunpowder_explosive,gunpowder_tnt,poo,glass_broken"
+    >
+</MagicConvertMaterialComponent>
+  
+</Entity>
+]]
 function emit(material,size)
     local crouch = test_crouch()
     if test_crouch() then
         local x,y = DEBUG_GetMouseWorld()
         local enew = EntityCreateNew()
         EntitySetTransform(enew, x, y)
-        EntityAddComponent(enew, "ParticleEmitterComponent", {
-            emitted_material_name=material,
-            create_real_particles="1",
-            lifetime_min="1",
-            lifetime_max="1",
-            count_min="1",
-            count_max="1",
-            render_on_grid="1",
-            fade_based_on_lifetime="1",
-            cosmetic_force_create="0",
-            airflow_force="0.251",
-            airflow_time="1.01",
-            airflow_scale="0.05",
-            emission_interval_min_frames="1",
-            emission_interval_max_frames="1",
-            emit_cosmetic_particles="0",
-            image_animation_file="files/draw_".. size ..".png",
-            image_animation_speed="1",
-            image_animation_loop="0",
-            image_animation_raytrace_from_center="1",
-            collide_with_gas_and_fire="0",
-            set_magic_creation="1",
-            is_emitting="1"
-        })
+        if material ~= "Eraser" then
+            EntityAddComponent(enew, "ParticleEmitterComponent", {
+                emitted_material_name=material,
+                create_real_particles="1",
+                lifetime_min="1",
+                lifetime_max="1",
+                count_min="1",
+                count_max="1",
+                render_on_grid="1",
+                fade_based_on_lifetime="1",
+                cosmetic_force_create="0",
+                airflow_force="0.251",
+                airflow_time="1.01",
+                airflow_scale="0.05",
+                emission_interval_min_frames="1",
+                emission_interval_max_frames="1",
+                emit_cosmetic_particles="0",
+                image_animation_file="files/draw_".. size ..".png",
+                image_animation_speed="1",
+                image_animation_loop="0",
+                image_animation_raytrace_from_center="1",
+                collide_with_gas_and_fire="0",
+                set_magic_creation="1",
+                is_emitting="1"
+            })
+        else
+            EntityAddComponent(enew,"CellEaterComponent",{
+                eat_probability="100",
+                radius=size*4,
+                limited_materials="0"
+            })
+            EntityKill(enew)
+        end
     end
 end
 
@@ -147,6 +170,8 @@ function get_all_components(component)
     end
 end
 
+local aha= get_meta_custom("DamageModelComponent",{"damage_multipliers"})
+print(aha.damage_multipliers)
 function get_player_coords()
     local player = get_player_obj()
     return EntityGetTransform(player)

@@ -1,18 +1,4 @@
-all_draw_materials = {Solids={}}
-
---[[
-for i,cat in ipairs{"Fires","Solids","Gases","Sands","Liquids"}
-do
-    local temp = {}
-    local mats = getfenv()["CellFactory_GetAll"..cat]()
-    table.sort(mats)
-    for i,x in ipairs(mats)
-    do 
-        table.insert(temp,{id=x,name=id_to_name(x)})
-    end
-    all_materials[cat] = temp
-end 
-]]
+all_draw_materials = {Solids={{id="Eraser",name="Eraser"}}}
 
 local function id_to_name(id)
     id = id:gsub("_",' ')
@@ -26,7 +12,7 @@ end
 
 for i,cat in ipairs{"Fires","Solids","Gases","Sands","Liquids"}
 do
-    local temp = {}
+    local temp = {{id="Eraser",name="Eraser"}}
     local mats = getfenv()["CellFactory_GetAll"..cat]()
     table.sort(mats)
 

@@ -11,7 +11,6 @@ Infinite flasks
 Keyboard filter
 Improved infinite spells - which might be game bug
 
-
 ]]
 
 dofile( "data/scripts/lib/utilities.lua" )
@@ -518,10 +517,12 @@ draw_menu = function()
 
     GuiLayoutBeginVertical(GUI,1,82)
     GuiText(GUI,0,0,"Selected: ".. draw_mat)
+    GuiText(GUI,0,0,"(Draw by pressing right mouse button)")
     GuiLayoutEnd(GUI)
 
     grid(draw_option,all_draw_materials[draw_option],select_mat)
     emit(draw_mat,draw_size)
+    
 end
 
 locations = function()
