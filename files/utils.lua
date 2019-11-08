@@ -6,6 +6,7 @@ function test_player(obj)
     return IsPlayer(get_player_obj())
 end
 
+
 function get_player_data(component,toget)
     local data_components = EntityGetComponent( get_player_obj(), component )
     local output = {}
@@ -38,6 +39,54 @@ function set_player_data(component,values)
                 ComponentSetValue(data_component,x.var,x.value)
             end
         end
+    end
+end
+
+
+function string_to_bool(var)
+    if var == "1" then
+        return true
+    else
+        return false 
+    end
+end
+
+function test_crouch()
+    local crouch = get_player_data("ControlsComponent",{"mButtonDownFire2"})
+
+    return string_to_bool(crouch.mButtonDownFire2)
+end
+
+function emit(material,size)
+    local crouch = test_crouch()
+    if test_crouch() then
+        local x,y = DEBUG_GetMouseWorld()
+        local enew = EntityCreateNew()
+        EntitySetTransform(enew, x, y)
+        EntityAddComponent(enew, "ParticleEmitterComponent", {
+            emitted_material_name=material,
+            create_real_particles="1",
+            lifetime_min="1",
+            lifetime_max="1",
+            count_min="1",
+            count_max="1",
+            render_on_grid="1",
+            fade_based_on_lifetime="1",
+            cosmetic_force_create="0",
+            airflow_force="0.251",
+            airflow_time="1.01",
+            airflow_scale="0.05",
+            emission_interval_min_frames="1",
+            emission_interval_max_frames="1",
+            emit_cosmetic_particles="0",
+            image_animation_file="files/draw_".. size ..".png",
+            image_animation_speed="1",
+            image_animation_loop="0",
+            image_animation_raytrace_from_center="1",
+            collide_with_gas_and_fire="0",
+            set_magic_creation="1",
+            is_emitting="1"
+        })
     end
 end
 
@@ -194,7 +243,7 @@ function spawn_perk(obj)
 end 
 
 function spawn_entity(obj,offx,offy,particle)
-    offx = offx or 0
+    offx = offx or 20
     offy = offy or 0
 
     local path = obj.path

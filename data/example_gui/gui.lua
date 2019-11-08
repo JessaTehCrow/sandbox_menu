@@ -27,16 +27,27 @@ dofile( "files/projectiles.lua" )
 dofile( "files/locations.lua" )
 dofile( "files/spells.lua" )
 dofile( "files/wand.lua" )
+dofile( "files/draw_mats.lua" )
 
 -- Start / setup
 local GUI_created = false
-local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations,wands_saved
+local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations,wands_saved,draw,draw_menu,draw_option
 local flask_menu,flask_spawn
 local godmode,infinite_spells,boost,spell_arr,super_boost = false,false,false,nil,false
 local location = 'normal'
 local custom_wand = empty_wand()
 local wand_arr = {}
 local wand_arr_2 = {}
+
+local draw_options = {}
+local draw_size = "1"
+local draw_mat = "blood"
+
+for n,x in pairs(all_draw_materials)
+do
+    table.insert(draw_options,{name=n})
+    print(#x)
+end
 
 local incr_val = 1
 local always_cast = nil
@@ -148,7 +159,7 @@ local function grid(title,array,func)
     end 
 end
 
-function builder()
+local function builder()
     local values = {
         {"Spells per cast","actions_per_round"},
         {"Reload time","reload_time"},
@@ -240,6 +251,12 @@ button = function()
     prev = menu
 end
 
+function draw()
+    cx,cy = DEBUG_GetMouseWorld()
+
+    EntityLoad("data/entities/props/painting.xml",cx,cy)
+end
+
 menu = function()
     grid("Options:",{
         {name="-Wands",func=function() _GUI_menu = wands end},
@@ -252,6 +269,7 @@ menu = function()
         {name="-Flasks",func=function() _GUI_menu = flask_menu end},
         {name="-Particles",func=function() _GUI_menu = particles end},
         {name="-Locations",func=function() _GUI_menu = locations end},
+        {name="-Draw",nvar=draw},
         {name="-Cheats",func=function() _GUI_menu = cheat_menu end},
     })
 end
@@ -453,6 +471,47 @@ custom_locations = function()
     end
     GuiLayoutEnd(GUI)
     grid("Custom:",saved_custom_locations,teleport)
+end
+
+local function select(option)
+    print(option.name)
+    draw_option = option.name
+    _GUI_menu = draw_menu
+    prev = draw
+end
+
+local function select_mat(mat)  
+    draw_mat = mat.id
+    print(mat.id)
+end
+
+draw = function()
+    grid("Draw:",draw_options,select)
+    emit(draw_mat,draw_size)
+    GuiLayoutBeginVertical(GUI,1,82)
+    GuiText(GUI,0,0,"Selected: ".. draw_mat)
+    GuiLayoutEnd(GUI)
+end
+--emit(x,y,material)
+draw_menu = function()
+    GuiLayoutBeginVertical(GUI,20,15)
+    for i,x in ipairs{"1","2","3"}
+    do
+        local name = x
+        if draw_size == x then name = "("..x..")" end
+
+        if GuiButton(GUI,0,0,name,spawn_id - 5 - i) then
+            draw_size = x
+        end
+    end 
+    GuiLayoutEnd(GUI)
+
+    GuiLayoutBeginVertical(GUI,1,82)
+    GuiText(GUI,0,0,"Selected: ".. draw_mat)
+    GuiLayoutEnd(GUI)
+
+    grid(draw_option,all_draw_materials[draw_option],select_mat)
+    emit(draw_mat,draw_size)
 end
 
 locations = function()
