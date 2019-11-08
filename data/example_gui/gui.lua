@@ -33,12 +33,12 @@ dofile( "files/draw_mats.lua" )
 local GUI_created = false
 local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations,wands_saved,draw,draw_menu,draw_option
 local flask_menu,flask_spawn
-local godmode,infinite_spells,boost,spell_arr,super_boost = false,false,false,nil,false
+local godmode,infinite_spells,boost,spell_arr,super_boost,usain_bolt = false,false,false,nil,false,false
 local location = 'normal'
 local custom_wand = empty_wand()
 local wand_arr = {}
 local wand_arr_2 = {}
-
+local selected_entity = {name="None",path="None"}
 local draw_options = {}
 local draw_size = "1"
 local draw_mat = "blood"
@@ -423,8 +423,17 @@ flask_spawn = function()
     grid(_mat..":",all_materials[_mat],spawn_flask)
 end
 
+
+local function select_item(obj)
+    selected_entity = obj
+end
 props = function()
-    grid('Props:',all_props,spawn_entity)
+    grid('Props:',all_props,select_item)
+    spawn_item(selected_entity.path)
+    GuiLayoutBeginVertical(GUI,1,82)
+    GuiText(GUI,0,0,"Selected: ".. selected_entity.name)
+    GuiText(GUI,0,0,"(Spawn by pressing right mouse button)")
+    GuiLayoutEnd(GUI)
 end
 
 pickup = function()
@@ -490,6 +499,7 @@ draw = function()
     emit(draw_mat,draw_size)
     GuiLayoutBeginVertical(GUI,1,82)
     GuiText(GUI,0,0,"Selected: ".. draw_mat)
+    GuiText(GUI,0,0,"(Draw by pressing right mouse button)")
     GuiLayoutEnd(GUI)
 end
 --emit(x,y,material)
@@ -527,6 +537,7 @@ cheat_menu = function()
         {name="Infinite spells (".. bool_to_onoff(infinite_spells) ..")", func= function() infinite_spells = not infinite_spells end},
         {name="Infinite boost (".. bool_to_onoff(boost) ..")",func= function() boost = not boost end},
         {name="Super inventory (".. bool_to_onoff(super_boost) ..")",func=function() super_boost = not super_boost; superinv(super_boost); end},
+        {name="Usain bolt (".. bool_to_onoff(usain_bolt) ..")",func=function() usain_bolt= not usain_bolt; do_usain_bolt(usain_bolt) end},
         {name ="GOLD EVERYTHING",func=function() ConvertEverythingToGold() end},
         {name="500 Gold",func=function() loads_of_gold(0.5) end},
         {name="1K Gold",func=function() loads_of_gold(1) end},

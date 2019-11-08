@@ -22,6 +22,21 @@ function get_player_data(component,toget)
     return output
 end
 
+function get_meta_custom(component,toget)
+    local data_components = EntityGetComponent( get_player_obj(), component )
+    local output = {}
+    if data_components ~= nil then
+        for i,data_component in ipairs(data_components) do
+            for i,x in ipairs(toget)
+            do
+                local value = ComponentGetMetaCustom(data_component,x)
+                output[x] = value
+            end 
+        end
+    end
+    return output
+end
+
 function save_location()
     local x,y = get_player_coords()
     local name = "Custom location " .. #saved_custom_locations + 1
@@ -42,6 +57,18 @@ function set_player_data(component,values)
     end
 end
 
+function set_player_meta(component,values)
+    local data_components = EntityGetComponent( get_player_obj(), component )
+    if data_components ~= nil then
+        for i,data_component in ipairs(data_components)
+        do
+            for i,x in ipairs(values)
+            do
+                ComponentSetMetaCustom(data_component,x.var,x.value)
+            end
+        end
+    end
+end
 
 function string_to_bool(var)
     if var == "1" then
@@ -56,6 +83,22 @@ function test_crouch()
 
     return string_to_bool(crouch.mButtonDownFire2)
 end
+
+local spawned = false
+function spawn_item(item)
+    if item.name == "None" then
+        return 0
+    end
+    local x,y = DEBUG_GetMouseWorld()
+    if test_crouch() then
+        if not spawned then
+            EntityLoad(item,x,y)
+            spawned = true
+        end
+    else 
+        spawned = false
+    end
+end 
 
 function emit(material,size)
     local crouch = test_crouch()
@@ -152,6 +195,24 @@ function heal()
         {var='hp',value=player_data.max_hp},
         {var="is_on_fire",value='0'},
     })
+end
+
+function do_usain_bolt(bool)
+    local data = get_meta_custom("CharacterPlatformingComponent",{"velocity_max_x","run_velocity"})
+    local incr = 4
+    if bool then
+        set_player_meta("CharacterPlatformingComponent",{
+            {var="run_velocity",  value=    tonumber(data.run_velocity) * incr      },
+            {var="velocity_max_x",value=  tonumber(data.velocity_max_x) * incr      },
+            {var="velocity_min_x",value= (tonumber(data.velocity_max_x) * incr) *-1 },
+        })
+    else
+        set_player_meta("CharacterPlatformingComponent",{
+            {var="run_velocity",  value=    tonumber(data.run_velocity) / incr      },
+            {var="velocity_max_x",value=  tonumber(data.velocity_max_x) / incr      },
+            {var="velocity_min_x",value= (tonumber(data.velocity_max_x) / incr) *-1 },
+        })
+    end
 end
 
 function god_mode()

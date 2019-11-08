@@ -15,6 +15,7 @@ I want to make mod to just get mostly every item from the game. (Atleast every s
 - Godmode, Infinite boost, Infinite spells and more
 - Save locations on the go
 - Craft your own wands
+- Draw materials
 
 ## Spawnable from other mods
 - Spells inserted in `gun/gun_actions.lua`
@@ -22,9 +23,16 @@ I want to make mod to just get mostly every item from the game. (Atleast every s
 - Perks inserted in `perks/perk_list`
 
 ## Screenshots
-![all](https://cdn.discordapp.com/attachments/460470916153999381/639173981378707471/unknown.png)
+![all](https://media.discordapp.net/attachments/460470916153999381/642359935421775872/unknown.png)
 ![cheatmen](https://cdn.discordapp.com/attachments/460470916153999381/639243260409413633/unknown.png)
 ![particle](https://cdn.discordapp.com/attachments/460470916153999381/639174428961407009/unknown.png)
+![draw](https://media.discordapp.net/attachments/438308449747468289/642186293694169098/noita-20191108-031808-1758976729-00005116.gif)
+
+### Update logs
+
+- Better prop spawning
+- Material drawing
+- Usain bolt cheat
 
 ### Creator
 JessaTehCrow
