@@ -150,12 +150,22 @@ local function grid(title,array,func)
         if GuiButton(GUI,0,5,"<-",spawn_id+#array + 10) then
             _page = _page - 1
         end
+        if _page > 2 then 
+            if GuiButton(GUI,0,0,"<<",spawn_id+#array + 13) then
+                _page = 1
+            end
+        end
         GuiLayoutEnd(GUI)
     end
     if _page < pages then
         GuiLayoutBeginVertical(GUI,8,75)
         if GuiButton(GUI,0,5,"->",spawn_id+#array+ 11) then
             _page = _page + 1
+        end
+        if _page < pages - 1 then 
+            if GuiButton(GUI,0,0,">>",spawn_id+#array + 12) then
+                _page = pages
+            end
         end
         GuiLayoutEnd(GUI)
     end 
@@ -547,7 +557,7 @@ cheat_menu = function()
         {name="Infinite boost (".. bool_to_onoff(boost) ..")",func= function() boost = not boost end},
         {name="Super inventory (".. bool_to_onoff(super_boost) ..")",func=function() super_boost = not super_boost; superinv(super_boost); end},
         {name="Usain bolt (".. bool_to_onoff(usain_bolt) ..")",func=function() usain_bolt= not usain_bolt; do_usain_bolt(usain_bolt) end},
-        {name="Tp to cursor (".. bool_to_onoff(tp) ..")",func=function() tp = not tp; if tp then gameprint("Press right mouse button to tp"); end; end},
+        {name="Tp to cursor (".. bool_to_onoff(tp) ..")",func=function() tp = not tp; if tp then GamePrint("Press right mouse button to tp"); end; end},
         {name ="GOLD EVERYTHING",func=function() ConvertEverythingToGold() end},
         {name="500 Gold",func=function() loads_of_gold(0.5) end},
         {name="1K Gold",func=function() loads_of_gold(1) end},

@@ -115,5 +115,4 @@ all_props = {
     {path='data/entities/props/vault_machine_6.xml',name='Vault machine 6'},
     {path='data/entities/props/_test_physics_heavy.xml',name=' test physics heavy'},
     {path='data/entities/props/_test_physics_light.xml',name=' test physics light'},
-    {path="data/entities/props/rocket.xml",name="Super rocket"}
 }
