@@ -44,8 +44,10 @@ function save_location()
     table.insert(saved_custom_locations,{name=name,x=x,y=y,func=teleport})
 end
 
-function set_player_data(component,values)
-    local data_components = EntityGetComponent( get_player_obj(), component )
+function set_player_data(component,values,entity)
+    local obj = get_player_obj()
+    if entity ~= nil then obj = entity end
+    local data_components = EntityGetComponent( obj, component )
     if data_components ~= nil then
         for i,data_component in ipairs(data_components)
         do
@@ -99,23 +101,8 @@ function spawn_item(item)
         spawned = false
     end
 end 
---[[
-<Entity>
-<InheritTransformComponent>
-</InheritTransformComponent>
 
-<CellEaterComponent
-    eat_probability="50"
-    radius="10" 
-    limited_materials="1"
-    materials="sand,soil,bone,fungisoil,mud,sandstone,snow,snow_sticky,sand_herb,wax,coal,sulphur,salt,gunpowder,gunpowder_unstable,gunpowder_explosive,gunpowder_tnt,poo,glass_broken"
-    >
-</MagicConvertMaterialComponent>
-  
-</Entity>
-]]
 function emit(material,size)
-    local crouch = test_crouch()
     if test_crouch() then
         local x,y = DEBUG_GetMouseWorld()
         local enew = EntityCreateNew()
@@ -156,8 +143,10 @@ function emit(material,size)
     end
 end
 
-function get_all_components(component)
-    local data_components = EntityGetComponent( get_player_obj(), component )
+function get_all_components(component,entity)
+    local obj = get_player_obj()
+    if entity ~= nil then obj = entity end
+    local data_components = EntityGetComponent( obj, component )
     if data_components ~= nil  then
         for i,comp in ipairs(data_components)
         do
@@ -170,8 +159,6 @@ function get_all_components(component)
     end
 end
 
-local aha= get_meta_custom("DamageModelComponent",{"damage_multipliers"})
-print(aha.damage_multipliers)
 function get_player_coords()
     local player = get_player_obj()
     return EntityGetTransform(player)
@@ -200,6 +187,17 @@ function merge_tables(tables)
         end
     end
     return temp_table
+end
+
+
+function disable_ai(entity)
+    local data = EntityGetComponent(entity,"AnimalAIComponent")
+    if data ~= nil then 
+        for i,x in ipairs(data)
+        do
+            EntityRemoveComponent(entity,x)
+        end
+    end
 end
 
 function bool_to_onoff(bool)
@@ -328,7 +326,7 @@ function spawn_perk(obj)
     perk_spawn(x,y-5,obj.id)
 end 
 
-function spawn_entity(obj,offx,offy,particle)
+function spawn_entity(obj,offx,offy,particle,ai)
     offx = offx or 20
     offy = offy or 0
 
@@ -337,5 +335,21 @@ function spawn_entity(obj,offx,offy,particle)
     if particle ~= false then
         EntityLoad("data/entities/particles/image_emitters/shop_effect.xml",x+offx,y+offy)
     end
-    EntityLoad(path,x+offx,y+offy)
+    local entity = EntityLoad(path,x+offx,y+offy)
+    if not ai then
+        disable_ai(entity)
+    end
+end
+local teleported = false
+function tp_to_cursor()
+    if test_crouch() then
+        if not teleported then
+            local x,y = DEBUG_GetMouseWorld()
+            teleport({x=x,y=y})
+            teleported = true
+        end
+    else
+        teleported = false
+    end
+
 end

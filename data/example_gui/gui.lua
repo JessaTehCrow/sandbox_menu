@@ -32,7 +32,7 @@ dofile( "files/draw_mats.lua" )
 local GUI_created = false
 local button,menu,wands,orbs,spells,perks,mobs,pickup,cheat_menu,props,locations,wands_saved,draw,draw_menu,draw_option
 local flask_menu,flask_spawn
-local godmode,infinite_spells,boost,spell_arr,super_boost,usain_bolt = false,false,false,nil,false,false
+local godmode,infinite_spells,boost,spell_arr,super_boost,usain_bolt,tp = false,false,false,nil,false,false,false
 local location = 'normal'
 local custom_wand = empty_wand()
 local wand_arr = {}
@@ -41,6 +41,7 @@ local selected_entity = {name="None",path="None"}
 local draw_options = {}
 local draw_size = "1"
 local draw_mat = "blood"
+local ai = true
 
 for n,x in pairs(all_draw_materials)
 do
@@ -103,6 +104,7 @@ local function grid(title,array,func)
             button_press('Back')
             _GUI_menu = prev
             prev = menu
+            tp = false
         end
         close = 55
         GuiLayoutEnd(GUI)
@@ -111,6 +113,7 @@ local function grid(title,array,func)
     if GuiButton(GUI,close,0,'[Close]',spawn_id-1) then
         button_press('Close')
         _GUI_menu = button
+        tp = false
     end
     GuiText(GUI,0,30,title)
     GuiLayoutEnd(GUI)
@@ -236,7 +239,7 @@ local function builder()
 end
 
 local function spawn(obj)
-    spawn_entity(obj,15,-10)
+    spawn_entity(obj,15,-10,false,ai)
 end
 
 -- buttons / menu functions
@@ -396,6 +399,11 @@ end
 
 mobs = function()
     grid("Mobs:",animals,spawn)
+    GuiLayoutBeginVertical(GUI,1,0)
+    if GuiButton(GUI,70,41.5,"AI (".. bool_to_onoff(ai) ..")",spawn_id-9) then
+        ai = not ai
+    end 
+    GuiLayoutEnd(GUI)
 end 
 
 local function set_cast(obj)
@@ -539,6 +547,7 @@ cheat_menu = function()
         {name="Infinite boost (".. bool_to_onoff(boost) ..")",func= function() boost = not boost end},
         {name="Super inventory (".. bool_to_onoff(super_boost) ..")",func=function() super_boost = not super_boost; superinv(super_boost); end},
         {name="Usain bolt (".. bool_to_onoff(usain_bolt) ..")",func=function() usain_bolt= not usain_bolt; do_usain_bolt(usain_bolt) end},
+        {name="Tp to cursor (".. bool_to_onoff(tp) ..")",func=function() tp = not tp; if tp then gameprint("Press right mouse button to tp"); end; end},
         {name ="GOLD EVERYTHING",func=function() ConvertEverythingToGold() end},
         {name="500 Gold",func=function() loads_of_gold(0.5) end},
         {name="1K Gold",func=function() loads_of_gold(1) end},
@@ -557,6 +566,10 @@ local function cheat()
     if GUI ~= nil then
         GuiStartFrame(GUI)
     end
+
+    if tp then
+        tp_to_cursor()
+    end 
 end 
 
 -- GUI loop
