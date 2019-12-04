@@ -312,7 +312,7 @@ menu = function()
         {name="-Locations",func=function() _GUI_menu = locations end},
         {name="-Draw",nvar=draw},
         {name="-Cheats",func=function() _GUI_menu = cheat_menu end},
-        {name="test",nvar=function() grid("Test",{{name="hi"},{name="test"}},spawn_id,true) end}
+        --{name="test",nvar=function() grid("Test",{{name="hi"},{name="test"}},spawn_id,true) end}
     })
 end
 
