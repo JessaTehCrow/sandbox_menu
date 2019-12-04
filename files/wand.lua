@@ -1,3 +1,4 @@
+dofile("data/example_gui/sand_mod.lua")
 dofile('data/scripts/gun/procedural/gun_utilities.lua')
 dofile("data/scripts/gun/procedural/gun_procedural.lua")
 
@@ -19,7 +20,7 @@ end
 
 function gen_wand(wand)
     local x,y = get_player_coords()
-    local entity = EntityLoad("files/wand_empty.xml",x,y)
+    local entity = EntityLoad("mods/sandbox_menu-"..version.."/files/wand_empty.xml",x,y)
     local ability = EntityGetFirstComponent( entity, "AbilityComponent" )
     local wand_info = get_info(wand)
     wand_info.name = "Custom"

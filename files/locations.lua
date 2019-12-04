@@ -1,4 +1,5 @@
-dofile( "files/utils.lua" )
+dofile("data/example_gui/sand_mod.lua")
+dofile( "mods/sandbox_menu-"..version.."/files/utils.lua" )
 
 saved_locations = {
     { normal={ name="Spawn",x=250,y=-100},                east={ name="East Spawn",x=35000,y=-100},        west={ name="West Spawn",x=-35000,y=-100}},

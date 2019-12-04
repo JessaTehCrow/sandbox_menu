@@ -18,17 +18,11 @@ do
 
     for i,x in ipairs(mats)
     do  
-        if cat == "Solids" then
-            if check_static(x) then
-                table.insert(all_draw_materials.Solids,{id=x,name=id_to_name(x)})
-            end
+        if check_static(x) then
+            table.insert(all_draw_materials.Solids,#all_draw_materials.Solids+1,{id=x,name=id_to_name(x)})
         else
-            if check_static(x) then
-                table.insert(all_draw_materials.Solids,{id=x,name=id_to_name(x)})
-            else
-                table.insert(temp,{id=x,name=id_to_name(x)})
-            end 
-        end
+            table.insert(temp,{id=x,name=id_to_name(x)})
+        end 
     end
     if cat ~= "Solids" then
         all_draw_materials[cat] = temp

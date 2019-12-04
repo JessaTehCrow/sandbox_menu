@@ -11,22 +11,30 @@ Infinite flasks
 Keyboard filter
 Improved infinite spells - which might be game bug
 
-]]
 
+
+dragging
+mob spawn cursor
+
+sanbox_menu-1.6
+mods/sanbox_menu
+]]
+dofile("data/example_gui/sand_mod.lua")
+print("Loading sandbox menu...")
 dofile( "data/scripts/lib/utilities.lua" )
 dofile( "data/scripts/perks/perk_list.lua")
 dofile( "data/scripts/perks/perk.lua")
-dofile( "files/utils.lua" )
-dofile( "files/mobs.lua" )
-dofile( "files/pickup.lua" )
-dofile( "files/material.lua" )
-dofile( "files/particles.lua" )
-dofile( "files/props.lua" )
-dofile( "files/projectiles.lua" )
-dofile( "files/locations.lua" )
-dofile( "files/spells.lua" )
-dofile( "files/wand.lua" )
-dofile( "files/draw_mats.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/utils.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/mobs.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/pickup.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/material.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/particles.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/props.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/locations.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/spells.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/wand.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/draw_mats.lua" )
+dofile( "mods/sandbox_menu-"..version.."/files/keyboard.lua" )
 
 -- Start / setup
 local GUI_created = false
@@ -87,12 +95,31 @@ local spawn_id = 342
 local prev = nil
 
 -- local functions
-local function extra_function(data)
-    --GuiLayoutBeginVertical(GUI,1,0)
-
+local function sort_by(array,filter)
+    local new_arr = {}
+    for i,x in ipairs(array)
+    do
+        local name = x.name or x.ui_name
+        if GameTextGet(name) ~= "" then name = GameTextGet(name) end
+        if string.match(name:lower(),filter) then
+            table.insert(new_arr,x)
+        end
+    end
+    return new_arr
 end
 
-local function grid(title,array,func)
+local function grid(title,array,func,filter)
+    if filter then
+        _keyboard_test()
+    end
+    if _filter ~= nil and _filter ~= "" then 
+        array = sort_by(array,_filter)
+    end
+    if func == true and filter == nil then
+        filter = true
+        func = nil
+    end
+
     local collumn_length = 20
     local pages = math.ceil(#array/collumn_length)
     local offset = (_page-1)*collumn_length
@@ -105,6 +132,7 @@ local function grid(title,array,func)
             _GUI_menu = prev
             prev = menu
             tp = false
+            filter_clear()
         end
         close = 55
         GuiLayoutEnd(GUI)
@@ -114,6 +142,7 @@ local function grid(title,array,func)
         button_press('Close')
         _GUI_menu = button
         tp = false
+        filter_clear()
     end
     GuiText(GUI,0,30,title)
     GuiLayoutEnd(GUI)
@@ -283,19 +312,20 @@ menu = function()
         {name="-Locations",func=function() _GUI_menu = locations end},
         {name="-Draw",nvar=draw},
         {name="-Cheats",func=function() _GUI_menu = cheat_menu end},
+        {name="test",nvar=function() grid("Test",{{name="hi"},{name="test"}},spawn_id,true) end}
     })
 end
 
 spells = function()
     grid("Spells:",{
-        {name="Projectiles",func=function() spell_arr = function() grid("Projectiles:",gun_actions.projectiles,spawn_spell)        end _GUI_menu = spell_arr; prev=spells end },
-        {name="Static",func=function() spell_arr =  function()grid("Static:",gun_actions.static,spawn_spell)           end _GUI_menu = spell_arr; prev=spells end },
-        {name="Modifiers",func=function() spell_arr = function() grid("Modifiers:",gun_actions.modifier,spawn_spell)  end _GUI_menu = spell_arr; prev=spells end },
-        {name="Formations",func=function() spell_arr = function() grid("Formations:",gun_actions.draw_many,spawn_spell)  end _GUI_menu = spell_arr; prev=spells end },
-        {name="Materials",func=function() spell_arr = function() grid("Materials:",gun_actions.material,spawn_spell)   end  _GUI_menu = spell_arr; prev=spells end },
-        {name="Utility",func=function() spell_arr = function() grid("Utility:",gun_actions.utility,spawn_spell)        end _GUI_menu = spell_arr; prev=spells end },
-        {name="Passive",func=function() spell_arr = function() grid("Passive:",gun_actions.passive,spawn_spell)        end _GUI_menu = spell_arr; prev=spells end },
-        {name="Other",func=function() spell_arr = function() grid("Other:",gun_actions.other,spawn_spell)              end _GUI_menu = spell_arr; prev=spells end },
+        {name="Projectiles",func=function() spell_arr = function() grid("Projectiles:",gun_actions.projectiles,spawn_spell,true)        end _GUI_menu = spell_arr; prev=spells end },
+        {name="Static",func=function() spell_arr =  function()grid("Static:",gun_actions.static,spawn_spell,true)           end _GUI_menu = spell_arr; prev=spells end },
+        {name="Modifiers",func=function() spell_arr = function() grid("Modifiers:",gun_actions.modifier,spawn_spell,true)  end _GUI_menu = spell_arr; prev=spells end },
+        {name="Formations",func=function() spell_arr = function() grid("Formations:",gun_actions.draw_many,spawn_spell,true)  end _GUI_menu = spell_arr; prev=spells end },
+        {name="Materials",func=function() spell_arr = function() grid("Materials:",gun_actions.material,spawn_spell,true)   end  _GUI_menu = spell_arr; prev=spells end },
+        {name="Utility",func=function() spell_arr = function() grid("Utility:",gun_actions.utility,spawn_spell,true)        end _GUI_menu = spell_arr; prev=spells end },
+        {name="Passive",func=function() spell_arr = function() grid("Passive:",gun_actions.passive,spawn_spell,true)        end _GUI_menu = spell_arr; prev=spells end },
+        {name="Other",func=function() spell_arr = function() grid("Other:",gun_actions.other,spawn_spell,true)              end _GUI_menu = spell_arr; prev=spells end },
         {name="Random",func=random_spell},
     })
 end
@@ -400,15 +430,15 @@ wands_saved = function()
 end
 
 perks = function()
-    grid("Perks:",perk_list,spawn_perk)
+    grid("Perks:",perk_list,spawn_perk,true)
 end
 
 particles = function()
-    grid("Particles",all_particles,particle_spawn)
+    grid("Particles",all_particles,particle_spawn,true)
 end
 
 mobs = function()
-    grid("Mobs:",animals,spawn)
+    grid("Mobs:",animals,spawn,true)
     GuiLayoutBeginVertical(GUI,1,0)
     if GuiButton(GUI,70,41.5,"AI (".. bool_to_onoff(ai) ..")",spawn_id-9) then
         ai = not ai
@@ -425,19 +455,19 @@ end
 
 select_spell = function()
     grid("Select:", {
-        {name="Projectiles",func=function() spell_arr = function() grid("Projectiles:",gun_actions.projectiles,set_cast)        end _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Static",func=function() spell_arr =  function()grid("Static:",gun_actions.static,set_cast)           end _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Modifiers",func=function() spell_arr = function() grid("Modifiers:",gun_actions.modifier,set_cast)  end _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Formations",func=function() spell_arr = function() grid("Formations:",gun_actions.draw_many,set_cast)  end _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Materials",func=function() spell_arr = function() grid("Materials:",gun_actions.material,set_cast)   end  _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Utility",func=function() spell_arr = function() grid("Utility:",gun_actions.utility,set_cast)        end _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Passive",func=function() spell_arr = function() grid("Passive:",gun_actions.passive,set_cast)        end _GUI_menu = spell_arr; prev = select_spell end },
-        {name="Other",func=function() spell_arr = function() grid("Other:",gun_actions.other,set_cast)              end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Projectiles",func=function() spell_arr = function() grid("Projectiles:",gun_actions.projectiles,set_cast,true)        end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Static",func=function() spell_arr =  function()grid("Static:",gun_actions.static,set_cast,true)           end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Modifiers",func=function() spell_arr = function() grid("Modifiers:",gun_actions.modifier,set_cast,true)  end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Formations",func=function() spell_arr = function() grid("Formations:",gun_actions.draw_many,set_cast,true)  end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Materials",func=function() spell_arr = function() grid("Materials:",gun_actions.material,set_cast,true)   end  _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Utility",func=function() spell_arr = function() grid("Utility:",gun_actions.utility,set_cast,true)        end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Passive",func=function() spell_arr = function() grid("Passive:",gun_actions.passive,set_cast,true)        end _GUI_menu = spell_arr; prev = select_spell end },
+        {name="Other",func=function() spell_arr = function() grid("Other:",gun_actions.other,set_cast,true)              end _GUI_menu = spell_arr; prev = select_spell end },
     })
 end
 
 flask_spawn = function()
-    grid(_mat..":",all_materials[_mat],spawn_flask)
+    grid(_mat..":",all_materials[_mat],spawn_flask,true)
 end
 
 
@@ -445,7 +475,7 @@ local function select_item(obj)
     selected_entity = obj
 end
 props = function()
-    grid('Props:',all_props,select_item)
+    grid('Props:',all_props,select_item,true)
     spawn_item(selected_entity.path)
     GuiLayoutBeginVertical(GUI,1,82)
     GuiText(GUI,0,0,"Selected: ".. selected_entity.name)
@@ -454,7 +484,7 @@ props = function()
 end
 
 pickup = function()
-    grid('Pickups:',pickupable,spawn)
+    grid('Pickups:',pickupable,spawn,true)
 end
 
 saved_locations_menu = function()
@@ -538,7 +568,7 @@ draw_menu = function()
     GuiText(GUI,0,0,"(Draw by pressing right mouse button)")
     GuiLayoutEnd(GUI)
 
-    grid(draw_option,all_draw_materials[draw_option],select_mat)
+    grid(draw_option,all_draw_materials[draw_option],select_mat,true)
     emit(draw_mat,draw_size)
     
 end

@@ -1,3 +1,5 @@
+dofile("data/example_gui/sand_mod.lua")
+
 function get_player_obj()
     return EntityGetWithTag( "player_unit" )[1]
 end
@@ -124,7 +126,7 @@ function emit(material,size)
                 emission_interval_min_frames="1",
                 emission_interval_max_frames="1",
                 emit_cosmetic_particles="0",
-                image_animation_file="files/draw_".. size ..".png",
+                image_animation_file="mods/sandbox_menu-"..version.."/files/draw_".. size ..".png",
                 image_animation_speed="1",
                 image_animation_loop="0",
                 image_animation_raytrace_from_center="1",
@@ -167,7 +169,7 @@ end
 function spawn_flask(matobj)
     local mat = matobj.id
     local x,y = get_player_coords()
-    local flask = EntityLoad('files/flask_empty.xml',x,y)
+    local flask = EntityLoad('mods/sandbox_menu-'..version..'/files/flask_empty.xml',x,y)
     AddMaterialInventoryMaterial( flask, mat, 1000 )
 end
 

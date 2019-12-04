@@ -1,4 +1,4 @@
-
+all_materials = {}
 
 local function id_to_name(id)
     id = id:gsub("_",' ')
