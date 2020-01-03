@@ -1,3 +1,6 @@
+# NOTE: DOWNLOAD RELEASE, CLONING DOESN'T WORK
+
+
 # Sandbox Menu
 A general mod-menu, or how people call it the 'sanbox menu' for noita.
 
