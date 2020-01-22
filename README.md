@@ -41,4 +41,4 @@ I want to make mod to just get mostly every item from the game. (Atleast every s
 ### Creator
 JessaTehCrow
 
-Discord = `Jessa#8025`
+Discord = https://discordapp.com/invite/ZEcgSs7

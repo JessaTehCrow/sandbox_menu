@@ -583,6 +583,7 @@ end
 cheat_menu = function()
     grid("Cheats:",{
         {name="Godmode (".. bool_to_onoff(godmode) ..")",func=function() godmode = not godmode; if godmode then god_mode() else mortal_mode() end; end},
+        {name="Heal",func=heal},
         {name="Infinite spells (".. bool_to_onoff(infinite_spells) ..")", func= function() infinite_spells = not infinite_spells end},
         {name="Infinite boost (".. bool_to_onoff(boost) ..")",func= function() boost = not boost end},
         {name="Super inventory (".. bool_to_onoff(super_boost) ..")",func=function() super_boost = not super_boost; superinv(super_boost); end},
