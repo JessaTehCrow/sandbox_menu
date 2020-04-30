@@ -15,6 +15,7 @@ animals = {
     {path='data/entities/animals/bloodcrystal_physics.xml',name='Bloodcrystal physics'},
     {path='data/entities/animals/bloom.xml',name='Bloom'},
     {path='data/entities/animals/boss_dragon.xml',name='Boss dragon'},
+    {path='data/entities/animals/chest_leggy.xml',name='Chest leggy'},
     {path='data/entities/animals/chest_mimic.xml',name='Chest mimic'},
     {path='data/entities/animals/crystal_physics.xml',name='Crystal physics'},
     {path='data/entities/animals/darkghost.xml',name='Darkghost'},
@@ -105,6 +106,7 @@ animals = {
     {path='data/entities/animals/wand_ghost_charmed.xml',name='Wand ghost charmed'},
     {path='data/entities/animals/wizard_dark.xml',name='Wizard dark'},
     {path='data/entities/animals/wizard_poly.xml',name='Wizard poly'},
+    {path='data/entities/animals/wizard_swapper.xml',name='Wizard swapper'},
     {path='data/entities/animals/wizard_tele.xml',name='Wizard tele'},
     {path='data/entities/animals/wolf.xml',name='Wolf'},
     {path='data/entities/animals/worm.xml',name='Worm'},
@@ -117,4 +119,5 @@ animals = {
     {path='data/entities/animals/wraith_storm.xml',name='Wraith storm'},
     {path='data/entities/animals/zombie.xml',name='Zombie'},
     {path='data/entities/animals/zombie_weak.xml',name='Zombie weak'},
+    {path='data/entities/animals/_test_walk.xml',name=' test walk'}
 }
